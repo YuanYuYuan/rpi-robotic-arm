@@ -1,6 +1,6 @@
 # This is a note for rpi-robotic-arm@cavedu 
 
-## Setup
+## 1. Basic Setup
 
 ### OS: using Raspbian
 
@@ -84,15 +84,12 @@ export DISPLAY=":1"
 ```
 
 
+###  Python Setup
 
+Install wxPython, opencv(python).
 
-
-
-
-
-
-
-
-
+```shell
+sudo apt-get install -y python-wxgtk2.8 libopencv-lib python-opencv
+```
 
 
