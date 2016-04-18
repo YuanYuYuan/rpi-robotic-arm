@@ -17,7 +17,7 @@ mv ../../main.py .
 Launch the program.
 
 ```shell
-python main.py .
+python main.py 
 ```
 
 
