@@ -63,13 +63,10 @@ count = 0
 sample_number = 20
 while True:
 
-    # Take each frame
     _, frame = cap.read()
 
-    # Convert BGR to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # Threshold the HSV image to get only blue colors
     mask = cv2.inRange(hsv, lower_bound, upper_bound)
     mask = cv2.erode(mask, None, iterations = 5)
     mask = cv2.dilate(mask, None, iterations = 5)

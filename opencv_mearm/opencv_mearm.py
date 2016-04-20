@@ -1,38 +1,30 @@
 import cv2
 import numpy as np
 import time
-from Adafruit_PWM_Servo_Driver import PWM
+import servo
 
-pwm = PWM(0x40)
-pwm.setPWMFreq(50)
-target_position = 1620
+target_position = 1620  # the position to grip the target
 
-def setServoPulse(channel, pulse):
-    if pulse > 2400:
-        pulse = 2400
-    elif pulse < 700:
-        pulse = 700
-    print "pulse = %d " % pulse
-    output_duty_cycle = pulse * 4096 / 20000
-    print "output_duty_cycle = %d per 12bits" % output_duty_cycle
-    pwm.setPWM(channel, 0, output_duty_cycle)
-
-def tracking(error, target_position):
-    if error > 10:
-        target_position += 20
-        setServoPulse(0, target_position)
-    elif error < -10:
-        target_position -= 20
-        setServoPulse(0, target_position)
+def tracking(error, target_position): # tracks the target
+    target_range = 10                 
+    track_correction = 20
+    if error > target_range:
+        target_position += track_correction
+        servo.setServoPulse(0, target_position)
+    elif error < target_range:
+        target_position -= track_correction
+        servo.setServoPulse(0, target_position)
     return target_position
+
+servo.idle_motion()    # initial position
         
 
-window_size = 400
+window_size = 400      # setup camera
 cap = cv2.VideoCapture(0)
 cap.set(3, window_size)
 cap.set(4, window_size)
 
-cv2.namedWindow("window")
+cv2.namedWindow("window") # create monitor windows
 cv2.namedWindow("mask")
 cv2.namedWindow("res")
 
@@ -46,7 +38,7 @@ mouse_x = window_size / 2
 mouse_y = window_size / 2
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-def detect_hsv(event, x, y, flags, param):
+def detect_hsv(event, x, y, flags, param): # show the hsv value of the mouse point
     global mouse_x, mouse_y
     if event == cv2.EVENT_LBUTTONDOWN:
         mouse_x = x
@@ -68,6 +60,8 @@ def update(x):
     upper_bound[2] = cv2.getTrackbarPos("upper_val", "window")
 
 
+# create trackbar to manipulate the hsv bound
+# the default value is for yellow object
 
 cv2.createTrackbar("lower_hue", "window", 15, 180, update)
 cv2.createTrackbar("lower_sat", "window", 0, 255, update)
@@ -80,12 +74,14 @@ cv2.createTrackbar("upper_val", "window", 255, 255, update)
 
 update(-1)
 
+# error process of tracking the object
 
 sum_x_err  = 0
 x_err = 0
 last_x_err = 0
 count = 0
-sample_number = 20
+sample_number = 10 
+
 while True:
 
     # Take each frame
@@ -94,13 +90,19 @@ while True:
     # Convert BGR to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # Threshold the HSV image to get only blue colors
+    # filter the raw image
+
     mask = cv2.inRange(hsv, lower_bound, upper_bound)
     mask = cv2.erode(mask, None, iterations = 5)
     mask = cv2.dilate(mask, None, iterations = 5)
     res = cv2.bitwise_and(frame, frame, mask= mask)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
     print "cnts = ", len(cnts)
+
+    # find the contours of the object and bound it with a rectangle
+    # track the max reactangle which might be the object by compute the error with center of the window
+
     if len(cnts) > 0:
         c = max(cnts, key = cv2.contourArea)
         x, y, w, h = cv2.boundingRect(c)
@@ -117,6 +119,15 @@ while True:
                 sum_x_err = 0
                 count = 0
                 print "mean x err = ", mean_x_err
+
+                # grip the object
+                servo.grip_motion()
+                time.sleep(2)
+                servo.back_motion()
+                time.sleep(2)
+                servo.idle_motion()
+                time.sleep(2)
+
             else:
                 print "x_err = ", x_err
                 sum_x_err += x_err
@@ -133,6 +144,9 @@ while True:
     cv2.imshow('mask',mask)
     cv2.imshow('res',res)
     k = cv2.waitKey(5) & 0xFF
+
+    # press ESC key to escape
+
     if k == 27:
         cv2.imwrite("contour_test.png", frame)
         break

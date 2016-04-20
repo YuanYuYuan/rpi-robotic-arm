@@ -17,4 +17,21 @@ def setServoPulse(channel, pulse):
     pwm.setPWM(channel, 0, output_duty_cycle)
 
 
+def idle_motion():
+    idle_frame = [1620, 1300, 2000, 1000]
+    for i in range(4):
+        setServoPulse(i, idle_frame[i])
+
+def grip_motion():
+    grip_frame = [1620, 2000, 2000, 2200]
+    for i in range(3):
+        setServoPulse(i + 1, grip_frame[i + 1])
+
+def back_motion():
+    back_frame = [1620, 1300, 2000, 2200]
+    for i in range(3):
+        setServoPulse(i + 1, back_frame[i + 1])
+
+
+
 
