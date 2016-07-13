@@ -5,7 +5,7 @@
 Install opencv(python)
 
 ```shell
-sudo apt-get install -y libopencv-lib python-opencv
+sudo apt-get install -y libopencv-dev python-opencv
 ```
 
 ## Usage
