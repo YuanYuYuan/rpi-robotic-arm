@@ -80,7 +80,7 @@ sum_x_err  = 0
 x_err = 0
 last_x_err = 0
 count = 0
-sample_number = 10 
+sample_number = 3
 
 while True:
 
