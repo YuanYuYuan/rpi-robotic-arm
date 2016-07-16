@@ -89,7 +89,7 @@ export DISPLAY=":1"
 Install wxPython, opencv(python).
 
 ```shell
-sudo apt-get install -y python-wxgtk2.8 libopencv-lib python-opencv
+sudo apt-get install -y python-wxgtk2.8 libopencv-dev python-opencv
 ```
 
 
