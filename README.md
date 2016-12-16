@@ -34,7 +34,7 @@ sudo i2cdetect -l
 Install vnc server and start it with port 5901 (:1), display resolution 1920x1080 (-geometry), pixel depths 16 (-depth).
 
 ```shell
-sudo apt-get -y install tightcvcserver
+sudo apt-get -y install tightvncserver
 vncserver :1 -geometry 1920x1080 -depth 16
 ```
 
